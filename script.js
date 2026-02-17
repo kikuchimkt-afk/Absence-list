@@ -492,7 +492,8 @@ T003,木村 拓也,理科`;
         if (searchTerm) {
             filtered = filtered.filter(item =>
                 (item.studentName || '').toLowerCase().includes(searchTerm) ||
-                (item.teacherName || '').toLowerCase().includes(searchTerm)
+                (item.teacherName || '').toLowerCase().includes(searchTerm) ||
+                (item.subject || '').toLowerCase().includes(searchTerm)
             );
         }
 
