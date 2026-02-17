@@ -156,16 +156,33 @@ T003,木村 拓也,理科`;
     }
 
     function loadDefaultCSVs() {
-        // Helper to fetch and decode as UTF-8
+        // Helper to fetch and decode (Default to Shift-JIS for Excel compatibility in Japan)
         const fetchCsv = (url, selectElement, type, fallbackData) => {
             fetch(url)
                 .then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
-                    return response.arrayBuffer(); // Get as buffer to decode manually
+                    return response.arrayBuffer();
                 })
                 .then(buffer => {
-                    const decoder = new TextDecoder('utf-8');
-                    const text = decoder.decode(buffer);
+                    // Try decoding as Shift-JIS (common for Excel CSVs in Japan)
+                    let decoder = new TextDecoder('shift_jis');
+                    let text = decoder.decode(buffer);
+
+                    // Simple check: If replacement char (U+FFFD) is present, it might be UTF-8
+                    // We check which encoding produces fewer replacement characters
+                    if (text.includes('\uFFFD')) {
+                        const decoderUtf8 = new TextDecoder('utf-8');
+                        const utf8Text = decoderUtf8.decode(buffer);
+
+                        const countSJIS = (text.match(/\uFFFD/g) || []).length;
+                        const countUTF8 = (utf8Text.match(/\uFFFD/g) || []).length;
+
+                        // If UTF-8 has fewer errors, use it
+                        if (countUTF8 < countSJIS) {
+                            text = utf8Text;
+                        }
+                    }
+
                     parseAndPopulate(text, selectElement, type);
                 })
                 .catch(err => {
@@ -181,8 +198,24 @@ T003,木村 拓也,理科`;
     function loadCSV(file, selectElement, type) {
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = (e) => parseAndPopulate(e.target.result, selectElement, type);
-        reader.readAsText(file, 'UTF-8'); // Force UTF-8
+        reader.onload = (e) => {
+            const buffer = e.target.result;
+            let decoder = new TextDecoder('shift_jis');
+            let text = decoder.decode(buffer);
+
+            if (text.includes('\uFFFD')) {
+                const decoderUtf8 = new TextDecoder('utf-8');
+                const utf8Text = decoderUtf8.decode(buffer);
+                const countSJIS = (text.match(/\uFFFD/g) || []).length;
+                const countUTF8 = (utf8Text.match(/\uFFFD/g) || []).length;
+
+                if (countUTF8 < countSJIS) {
+                    text = utf8Text;
+                }
+            }
+            parseAndPopulate(text, selectElement, type);
+        };
+        reader.readAsArrayBuffer(file);
     }
 
     function parseAndPopulate(csvText, selectElement, type) {
