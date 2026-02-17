@@ -234,7 +234,11 @@ T003,木村 拓也,理科`;
 
             const option = document.createElement('option');
             option.value = id;
-            option.textContent = `${name} (${gradeOrSubject})`;
+            if (type === 'teacher') {
+                option.textContent = name;
+            } else {
+                option.textContent = gradeOrSubject ? `${name} (${gradeOrSubject})` : name;
+            }
             selectElement.appendChild(option);
         }
     }
