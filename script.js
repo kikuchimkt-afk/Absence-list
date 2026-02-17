@@ -156,34 +156,33 @@ T003,木村 拓也,理科`;
     }
 
     function loadDefaultCSVs() {
-        fetch('./students.csv')
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.text();
-            })
-            .then(text => parseAndPopulate(text, studentSelect, 'student'))
-            .catch(err => {
-                console.warn('Could not load local students.csv. Using fallback data.', err);
-                parseAndPopulate(FALLBACK_STUDENTS_CSV, studentSelect, 'student');
-            });
+        // Helper to fetch and decode as UTF-8
+        const fetchCsv = (url, selectElement, type, fallbackData) => {
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.arrayBuffer(); // Get as buffer to decode manually
+                })
+                .then(buffer => {
+                    const decoder = new TextDecoder('utf-8');
+                    const text = decoder.decode(buffer);
+                    parseAndPopulate(text, selectElement, type);
+                })
+                .catch(err => {
+                    console.warn(`Could not load local ${url}. Using fallback data.`, err);
+                    parseAndPopulate(fallbackData, selectElement, type);
+                });
+        };
 
-        fetch('./teachers.csv')
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.text();
-            })
-            .then(text => parseAndPopulate(text, teacherSelect, 'teacher'))
-            .catch(err => {
-                console.warn('Could not load local teachers.csv. Using fallback data.', err);
-                parseAndPopulate(FALLBACK_TEACHERS_CSV, teacherSelect, 'teacher');
-            });
+        fetchCsv('./students.csv', studentSelect, 'student', FALLBACK_STUDENTS_CSV);
+        fetchCsv('./teachers.csv', teacherSelect, 'teacher', FALLBACK_TEACHERS_CSV);
     }
 
     function loadCSV(file, selectElement, type) {
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (e) => parseAndPopulate(e.target.result, selectElement, type);
-        reader.readAsText(file);
+        reader.readAsText(file, 'UTF-8'); // Force UTF-8
     }
 
     function parseAndPopulate(csvText, selectElement, type) {
