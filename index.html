@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欠席連絡登録</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>欠席連絡登録</h1>
+            <p>生徒・講師を選択し、詳細を入力してください。</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button type="button" class="tab-btn active" data-tab="register">📝 登録</button>
+            <button type="button" class="tab-btn" data-tab="list">📋 一覧・振替管理</button>
+        </div>
+
+        <!-- ===== TAB 1: Registration Form ===== -->
+        <div id="tab-register" class="tab-content active">
+            <form id="absenceForm">
+                <!-- Data Loading Section -->
+                <div class="card">
+                    <h2>データ読み込み (任意)</h2>
+                    <div class="form-group">
+                        <label for="studentCsv">生徒リスト (CSV)</label>
+                        <input type="file" id="studentCsv" accept=".csv">
+                        <div class="csv-actions">
+                            <small>※ 選択しない場合は標準データが使用されます。</small>
+                            <a href="#" id="downloadStudentCsv" class="download-link">📥 サンプルCSVをDL</a>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="teacherCsv">講師リスト (CSV)</label>
+                        <input type="file" id="teacherCsv" accept=".csv">
+                        <div class="csv-actions">
+                            <small>※ 選択しない場合は標準データが使用されます。</small>
+                            <a href="#" id="downloadTeacherCsv" class="download-link">📥 サンプルCSVをDL</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selection Section -->
+                <div class="card">
+                    <div class="form-group">
+                        <label for="studentSelect">生徒名 <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select id="studentSelect" name="studentSelect" required>
+                                <option value="">読み込み中...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="teacherSelect">担当講師 <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select id="teacherSelect" name="teacherSelect" required>
+                                <option value="">読み込み中...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date & Time Section -->
+                <div class="card">
+                    <label>欠席日 (カレンダーから選択) <span class="required">*</span></label>
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <button type="button" id="prevMonth">&lt;</button>
+                            <span id="currentMonthLabel"></span>
+                            <button type="button" id="nextMonth">&gt;</button>
+                        </div>
+                        <div id="calendarGrid" class="calendar-grid"></div>
+                    </div>
+                    <input type="hidden" id="selectedDate" name="date" required>
+                    <div id="selectedDateDisplay" class="selected-date-display">日付を選択してください</div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label>時間 <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label class="radio-chip">
+                                <input type="radio" name="timeSlot" value="17:00" required>
+                                <span>17:00</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="timeSlot" value="18:30">
+                                <span>18:30</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="timeSlot" value="20:00">
+                                <span>20:00</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="timeSlot" value="custom">
+                                <span>その他</span>
+                            </label>
+                        </div>
+                        <div id="customTimeContainer" class="hidden" style="margin-top: 10px;">
+                            <input type="time" id="customTime" name="customTime">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>教科</label>
+                        <div class="radio-group">
+                            <label class="radio-chip">
+                                <input type="radio" name="subject" value="英語" checked>
+                                <span>英語</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="subject" value="数学">
+                                <span>数学</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="subject" value="国語">
+                                <span>国語</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="subject" value="理科">
+                                <span>理科</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="subject" value="社会">
+                                <span>社会</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>欠席理由 <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label class="radio-chip">
+                                <input type="radio" name="reason" value="体調不良" required>
+                                <span>体調不良</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="reason" value="家庭都合">
+                                <span>家庭都合</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="reason" value="講師都合">
+                                <span>講師都合</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="reason" value="部活">
+                                <span>部活</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="reason" value="学校行事">
+                                <span>学校行事</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="reason" value="other">
+                                <span>その他</span>
+                            </label>
+                        </div>
+                        <div id="customReasonContainer" class="hidden" style="margin-top: 10px;">
+                            <input type="text" id="customReason" name="customReason" placeholder="理由を入力してください"
+                                style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:1rem;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>欠席種類 <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label class="radio-chip">
+                                <input type="radio" name="absenceType" value="事前連絡あり" required>
+                                <span>📞 事前連絡あり</span>
+                            </label>
+                            <label class="radio-chip">
+                                <input type="radio" name="absenceType" value="当日欠席">
+                                <span>⚠️ 当日欠席</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="button" id="submitBtn" class="submit-btn">登録する</button>
+            </form>
+        </div>
+
+        <!-- ===== TAB 2: List & Makeup Management ===== -->
+        <div id="tab-list" class="tab-content">
+            <!-- Filters -->
+            <div class="card filter-card">
+                <div class="filter-row">
+                    <input type="text" id="searchInput" placeholder="🔍 生徒名・講師名で検索..." class="search-input">
+                </div>
+                <div class="filter-row" style="margin-top: 10px; gap: 10px;">
+                    <label class="filter-checkbox">
+                        <input type="checkbox" id="filterPending">
+                        <span>振替未実施のみ表示</span>
+                    </label>
+                    <button type="button" id="refreshListBtn" class="refresh-btn">🔄 更新</button>
+                </div>
+            </div>
+
+            <!-- List Container -->
+            <div id="absenceListContainer">
+                <div class="loading-message">データを読み込んでいます...</div>
+            </div>
+
+            <!-- Stats -->
+            <div id="listStats" class="list-stats hidden"></div>
+        </div>
+    </div>
+
+    <!-- Script loaded with version cache buster v8 -->
+    <script src="script.js?v=8"></script>
+</body>
+
+</html>
